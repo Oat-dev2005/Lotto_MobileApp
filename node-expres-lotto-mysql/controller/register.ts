@@ -1,0 +1,35 @@
+import express from "express";
+import { conn } from "../dbconnect";
+
+export const router = express.Router();
+
+// router.get("/", async (req, res) => {
+//   const [rows] = await conn.query("SELECT * FROM customer");
+//   res.send(rows);
+// });
+router.get("/", (req, res) => {
+  res.send("API Register route OK ✅");
+});
+
+router.post("/", (req, res) => {
+  const { fullname, phone, email, image, password } = req.body;
+
+  if (!fullname || !phone || !email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "กรอกข้อมูลไม่ครบ" });
+  }
+
+  // SQL INSERT
+  const sql =
+    "INSERT INTO customer (fullname, phone, email, image, password) VALUES (?, ?, ?, ?, ?)";
+  conn.query(sql, [fullname, phone, email, image, password], (err, result) => {
+    if (err) {
+      console.error("DB ERROR:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "บันทึกข้อมูลไม่สำเร็จ", error: err });
+    }
+    return res.json({ success: true, message: "สมัครสมาชิกสำเร็จ" });
+  });
+});
