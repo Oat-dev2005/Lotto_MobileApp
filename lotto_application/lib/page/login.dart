@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lotto_application/model/request/customer_login_post_req.dart';
+import 'package:lotto_application/page/admin.dart';
+import 'package:lotto_application/page/customer.dart';
 // import 'package:lotto_application/model/request/customer_login_post_req.dart';
 import 'register.dart';
 
@@ -27,7 +29,7 @@ class LoginPage extends StatelessWidget {
         password: passCtl.text,
       );
 
-      var url = Uri.parse("http://192.168.56.2:3000/login"); // API endpoint
+      var url = Uri.parse("http://192.168.46.66:3000/login"); // API endpoint
       var response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
@@ -37,11 +39,23 @@ class LoginPage extends StatelessWidget {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         if (data["success"]) {
+          String role = data["user"]["role"]; // ดึง role จาก API
+
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text("เข้าสู่ระบบสำเร็จ ✅")));
-          // ไปหน้า HomePage หรือ Dashboard ได้
-          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
+          if (role == "customer") {
+            //pushReplacement จะเป็นการลบ stack ก่อนทำให้กดย้อนไปหน้าก่อนไม่ได้ เหมือน push ธรรมดา
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const CustomerPage()),
+            );
+          } else if (role == "admin") {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminPage()),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

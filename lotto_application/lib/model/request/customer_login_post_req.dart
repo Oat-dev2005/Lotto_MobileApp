@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final customerLoginPostRequest = customerLoginPostRequestFromJson(jsonString);
-
 import 'dart:convert';
 
 CustomerLoginPostRequest customerLoginPostRequestFromJson(String str) =>

@@ -12,24 +12,29 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { fullname, phone, email, image, password } = req.body;
+  const { fullname, phone, email, image, password, role } = req.body;
 
-  if (!fullname || !phone || !email || !password) {
+  if (!fullname || !phone || !email || !password || !role) {
     return res
       .status(400)
       .json({ success: false, message: "กรอกข้อมูลไม่ครบ" });
   }
-
   // SQL INSERT
   const sql =
-    "INSERT INTO customer (fullname, phone, email, image, password) VALUES (?, ?, ?, ?, ?)";
-  conn.query(sql, [fullname, phone, email, image, password], (err, result) => {
-    if (err) {
-      console.error("DB ERROR:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "บันทึกข้อมูลไม่สำเร็จ", error: err });
+    "INSERT INTO customer (fullname, phone, email, image, password, role) VALUES (?, ?, ?, ?, ?, ?)";
+  conn.query(
+    sql,
+    [fullname, phone, email, image, password, role],
+    (err, result) => {
+      if (err) {
+        console.error("DB ERROR:", err);
+        return res.status(500).json({
+          success: false,
+          message: "บันทึกข้อมูลไม่สำเร็จ",
+          error: err,
+        });
+      }
+      return res.json({ success: true, message: "สมัครสมาชิกสำเร็จ" });
     }
-    return res.json({ success: true, message: "สมัครสมาชิกสำเร็จ" });
-  });
+  );
 });

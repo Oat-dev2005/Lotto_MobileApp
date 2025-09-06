@@ -163,6 +163,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final emailCtl = TextEditingController();
   final passCtl = TextEditingController();
 
+  //customers is default role//
+  String selectedRole = "customer";
+
   Future<void> registerUser() async {
     final user = CustomerRegisterPostRequest(
       fullname: fullnameCtl.text,
@@ -170,6 +173,7 @@ class _RegisterPageState extends State<RegisterPage> {
       email: emailCtl.text,
       image: "", // อาจจะเป็น path หรือ base64 ถ้ามีรูป
       password: passCtl.text,
+      role: selectedRole,
     );
 
     var url = Uri.parse("http://192.168.46.66:3000/register"); // API Node.js
@@ -222,6 +226,23 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: passCtl,
               obscureText: true,
               decoration: const InputDecoration(hintText: "รหัสผ่าน"),
+            ),
+
+            DropdownButtonFormField<String>(
+              value: selectedRole,
+              decoration: const InputDecoration(
+                labelText: "เลือกบทบาท",
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(value: "customer", child: Text("Customer")),
+                DropdownMenuItem(value: "admin", child: Text("Admin")),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  selectedRole = value!;
+                });
+              },
             ),
             const SizedBox(height: 20),
             ElevatedButton(

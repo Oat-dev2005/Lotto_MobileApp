@@ -26,10 +26,16 @@ router.post("/", (req, res) => {
     }
 
     if (results.length > 0) {
+      const user = results[0];
       return res.json({
         success: true,
         message: "เข้าสู่ระบบสำเร็จ",
-        user: results[0],
+        user: {
+          id: user.id,
+          fullname: user.fullname,
+          phone: user.phone,
+          role: user.role,
+        },
       });
     } else {
       return res.json({
