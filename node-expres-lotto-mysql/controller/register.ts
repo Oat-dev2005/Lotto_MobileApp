@@ -12,19 +12,19 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { fullname, phone, email, image, password, role } = req.body;
+  const { fullname, phone, image, password, role, balance } = req.body;
 
-  if (!fullname || !phone || !email || !password || !role) {
+  if (!fullname || !phone || !password || !role || !balance) {
     return res
       .status(400)
       .json({ success: false, message: "กรอกข้อมูลไม่ครบ" });
   }
   // SQL INSERT
   const sql =
-    "INSERT INTO customer (fullname, phone, email, image, password, role) VALUES (?, ?, ?, ?, ?, ?)";
+    "INSERT INTO customer (fullname, phone, image, password, role, balance) VALUES (?, ?, ?, ?, ?, ?)";
   conn.query(
     sql,
-    [fullname, phone, email, image, password, role],
+    [fullname, phone, image, password, role, balance],
     (err, result) => {
       if (err) {
         console.error("DB ERROR:", err);

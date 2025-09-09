@@ -26,6 +26,9 @@ class CustomerPage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const LoginPage()),
                   (route) => false, // เคลียร์ทุกหน้าออกจาก stack
                 );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("ออกจากระบบสำเร็จ ✅")),
+                );
               }
             },
             itemBuilder: (context) => [

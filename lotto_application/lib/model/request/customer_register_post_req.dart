@@ -13,36 +13,36 @@ String customerRegisterPostRequestToJson(CustomerRegisterPostRequest data) =>
 class CustomerRegisterPostRequest {
   String fullname;
   String phone;
-  String email;
   String image;
   String password;
   String role;
+  double balance;
 
   CustomerRegisterPostRequest({
     required this.fullname,
     required this.phone,
-    required this.email,
     required this.image,
     required this.password,
     required this.role,
+    required this.balance,
   });
 
   factory CustomerRegisterPostRequest.fromJson(Map<String, dynamic> json) =>
       CustomerRegisterPostRequest(
         fullname: json["fullname"],
         phone: json["phone"],
-        email: json["email"],
         image: json["image"],
         password: json["password"],
         role: json["role"],
+        balance: (json["balance"] as num).toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
     "fullname": fullname,
     "phone": phone,
-    "email": email,
     "image": image,
     "password": password,
     "role": role,
+    "balance": balance,
   };
 }
