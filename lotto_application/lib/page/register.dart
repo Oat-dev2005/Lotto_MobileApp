@@ -30,7 +30,7 @@ class _RegisterPageState extends State<RegisterPage> {
       balance: double.tryParse(balanceCtl.text) ?? 0.0,
     );
 
-    var url = Uri.parse("http://192.168.0.100:3000/register"); // API Node.js
+    var url = Uri.parse("http://192.168.0.103:3000/register"); // API Node.js
     var response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
