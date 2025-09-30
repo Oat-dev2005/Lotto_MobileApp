@@ -17,7 +17,7 @@ router.post("/", (req, res) => {
   if (!fullname || !phone || !password || !role || !balance) {
     return res
       .status(400)
-      .json({ success: false, message: "กรอกข้อมูลไม่ครบ" });
+      .json({ success: false, message: "กรอกข้อมูลไม่ครบ" });      
   }
   // SQL INSERT
   const sql =

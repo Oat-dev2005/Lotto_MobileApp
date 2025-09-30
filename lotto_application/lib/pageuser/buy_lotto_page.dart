@@ -128,7 +128,7 @@ class _BuyLottoPageState extends State<BuyLottoPage> {
   Future<void> updateUserBalance(double totalCost) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:3000/api/user/update-balance'),
+        Uri.parse('http://192.168.0.103:3000/api/user/update-balance'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'userId': userId,

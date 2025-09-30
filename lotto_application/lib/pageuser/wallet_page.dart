@@ -20,6 +20,11 @@ class _WalletPageState extends State<WalletPage> {
   bool isLoading = true;
   String errorMessage = "";
 
+  List<Map<String, dynamic>> winList = [
+    {'number': '100010', 'price': 100, 'prize': 'รางวัลที่ 1 - 3500000 บาท'},
+    {'number': '100011', 'price': 100, 'prize': 'รางวัลที่ 2 - 1000000 บาท'},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -29,7 +34,11 @@ class _WalletPageState extends State<WalletPage> {
   Future<void> fetchUserData() async {
     try {
       // ใช้ IP 10.0.2.2 สำหรับ Android Emulator
-      final response = await http.get(Uri.parse("http://10.0.2.2:3000/api/lotto/customer/${widget.userId}"));
+      final response = await http.get(
+        Uri.parse(
+          "http://192.168.0.103:3000/api/lotto/customer/${widget.userId}",
+        ),
+      );
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -64,26 +73,6 @@ class _WalletPageState extends State<WalletPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("บัญชีผู้ใช้"),
-          backgroundColor: Colors.teal,
-        ),
-        body: const Center(child: CircularProgressIndicator()), // แสดงตัวโหลด
-      );
-    }
-
-    if (errorMessage.isNotEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("บัญชีผู้ใช้"),
-          backgroundColor: Colors.teal,
-        ),
-        body: Center(child: Text(errorMessage, style: TextStyle(color: Colors.red))), // แสดงข้อความ error
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("บัญชีผู้ใช้"),
@@ -107,7 +96,9 @@ class _WalletPageState extends State<WalletPage> {
                         Navigator.pop(context);
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => const LoginPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
                           (route) => false,
                         );
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -123,64 +114,99 @@ class _WalletPageState extends State<WalletPage> {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 74, 74, 74),
-            ),
-            child: Text(
-              "ยอดเงินในบัญชี: $walletAmount ฿", // แสดงยอดเงินที่ดึงมาจาก API
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ========== ส่วนข้อมูลบัญชีเดิม ==========
+            Container(
+              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              color: const Color.fromARGB(255, 74, 74, 74),
+              child: Text(
+                "ยอดเงินในบัญชี: $walletAmount ฿",
+                style: const TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 2, 84, 177),
+            Container(
+              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              color: const Color.fromARGB(255, 2, 84, 177),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    fullname,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                  Text(
+                    "เบอร์ $phone",
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Container(
+              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              color: const Color.fromARGB(255, 2, 84, 177),
+              child: Text(
+                "Role: $role",
+                style: const TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            ExpansionTile(
+              title: const Text(
+                "รายการที่ถูกรางวัล",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               children: [
-                Text(
-                  fullname.isEmpty ? "กำลังโหลด..." : fullname, // แสดงชื่อผู้ใช้
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  phone.isEmpty ? "กำลังโหลด..." : "เบอร์ $phone", // แสดงเบอร์โทร
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: winList.length,
+                  itemBuilder: (context, index) {
+                    final item = winList[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.confirmation_number),
+                        title: Text("เลข ${item['number']}"),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("ราคา: ${item['price']} บาท"),
+                            Text(item['prize']),
+                          ],
+                        ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.teal,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            "ขึ้นเงิน",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 2, 84, 177),
-            ),
-            child: Text(
-              "Role: $role", // แสดง role ที่ดึงมาจาก API
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

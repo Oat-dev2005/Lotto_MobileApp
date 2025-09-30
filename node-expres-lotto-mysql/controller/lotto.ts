@@ -13,11 +13,13 @@ router.get("/", (req, res) => {
 
 // ดึงข้อมูลล็อตโต้ทั้งหมด
 router.get("/all", (req, res) => {
-  const sql = "SELECT * FROM lotto_name";  // เปลี่ยนชื่อ table เป็น lotto_name
+  const sql = "SELECT * FROM lotto_name"; // เปลี่ยนชื่อ table เป็น lotto_name
   conn.query(sql, (err, results: any) => {
     if (err) {
       console.error("DB ERROR:", err);
-      return res.status(500).json({ success: false, message: "เกิดข้อผิดพลาดในระบบ" });
+      return res
+        .status(500)
+        .json({ success: false, message: "เกิดข้อผิดพลาดในระบบ" });
     }
     res.json({
       success: true,
@@ -28,12 +30,15 @@ router.get("/all", (req, res) => {
 
 // ลบข้อมูลล็อตโต้ทั้งหมด
 router.delete("/delete", (req, res) => {
-  const sql = "DELETE FROM lotto_name";  // ลบข้อมูลทั้งหมด
+  const sql = "DELETE FROM lotto_name"; // ลบข้อมูลทั้งหมด
 
   conn.query(sql, (err, results: any) => {
     if (err) {
       console.error("DB ERROR:", err);
-      return res.status(500).json({ success: false, message: `ไม่สามารถลบข้อมูลได้: ${err.message}` });
+      return res.status(500).json({
+        success: false,
+        message: `ไม่สามารถลบข้อมูลได้: ${err.message}`,
+      });
     }
 
     res.json({
@@ -45,15 +50,17 @@ router.delete("/delete", (req, res) => {
 
 // เพิ่มเลขล็อตโต้หลายตัวพร้อมกัน
 router.post("/insert", (req, res) => {
-  const numbers: {lottoID: number, number: string}[] = req.body.numbers;
+  const numbers: { lottoID: number; number: string }[] = req.body.numbers;
 
   // ตรวจสอบข้อมูลที่ส่งมา
   if (!numbers || !Array.isArray(numbers) || numbers.length === 0) {
-    return res.status(400).json({ success: false, message: "ไม่มีเลขที่ส่งมา" });
+    return res
+      .status(400)
+      .json({ success: false, message: "ไม่มีเลขที่ส่งมา" });
   }
 
   // map ตัวเลข => [lottoID, number, status]
-  const values = numbers.map(num => [num.lottoID, num.number, 0]); // status เริ่มต้น = 0
+  const values = numbers.map((num) => [num.lottoID, num.number, 0]); // status เริ่มต้น = 0
 
   const sql = "INSERT INTO lotto_name (lottoID, number, status) VALUES ?";
 
@@ -61,7 +68,10 @@ router.post("/insert", (req, res) => {
     if (err) {
       console.error("DB ERROR:", err);
       // แสดงข้อความผิดพลาดจากการ query
-      return res.status(500).json({ success: false, message: `เพิ่มข้อมูลไม่สำเร็จ: ${err.message}` });
+      return res.status(500).json({
+        success: false,
+        message: `เพิ่มข้อมูลไม่สำเร็จ: ${err.message}`,
+      });
     }
     res.json({
       success: true,
@@ -71,20 +81,24 @@ router.post("/insert", (req, res) => {
   });
 });
 
-
 // ดึงข้อมูลสมาชิกตาม id (userId)
 router.get("/customer/:userId", (req, res) => {
   const userId = req.params.userId; // ดึง userId จาก params
-  const sql = "SELECT fullname, phone, balance,role FROM customer WHERE idx = ?";  // ใช้ idx แทน id
+  const sql =
+    "SELECT fullname, phone, balance,role FROM customer WHERE idx = ?"; // ใช้ idx แทน id
 
   conn.query(sql, [userId], (err, results: any) => {
     if (err) {
       console.error("DB ERROR:", err);
-      return res.status(500).json({ success: false, message: "เกิดข้อผิดพลาดในระบบ" });
+      return res
+        .status(500)
+        .json({ success: false, message: "เกิดข้อผิดพลาดในระบบ" });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ success: false, message: "ไม่พบข้อมูลสมาชิก" });
+      return res
+        .status(404)
+        .json({ success: false, message: "ไม่พบข้อมูลสมาชิก" });
     }
 
     res.json({
@@ -94,12 +108,13 @@ router.get("/customer/:userId", (req, res) => {
   });
 });
 
-
 // เพิ่ม route สำหรับอัพเดต status ของเลขล็อตโต้ที่เลือก
 router.put("/update-status", (req, res) => {
   const selectedNumbers = req.body.selectedNumbers; // รับหมายเลขล็อตโต้ที่เลือกจาก client
   if (!selectedNumbers || selectedNumbers.length === 0) {
-    return res.status(400).json({ success: false, message: "กรุณาระบุหมายเลขล็อตโต้ที่เลือก" });
+    return res
+      .status(400)
+      .json({ success: false, message: "กรุณาระบุหมายเลขล็อตโต้ที่เลือก" });
   }
 
   const updatePromises = selectedNumbers.map((number: any) => {
@@ -122,7 +137,9 @@ router.put("/update-status", (req, res) => {
     })
     .catch((err) => {
       console.error("Error updating status:", err);
-      res.status(500).json({ success: false, message: "ไม่สามารถอัพเดตสถานะได้" });
+      res
+        .status(500)
+        .json({ success: false, message: "ไม่สามารถอัพเดตสถานะได้" });
     });
 });
 
@@ -132,8 +149,16 @@ router.put("/update-owner", (req, res) => {
   const userId = req.body.userId; // รับ userId จาก request
   const status = req.body.status; // รับ status จาก request
 
-  if (!selectedNumbers || selectedNumbers.length === 0 || !userId || status === undefined) {
-    return res.status(400).json({ success: false, message: "กรุณาระบุหมายเลขล็อตโต้ที่เลือกและ userId และ status" });
+  if (
+    !selectedNumbers ||
+    selectedNumbers.length === 0 ||
+    !userId ||
+    status === undefined
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "กรุณาระบุหมายเลขล็อตโต้ที่เลือกและ userId และ status",
+    });
   }
 
   const updatePromises = selectedNumbers.map((number: any) => {
@@ -152,24 +177,32 @@ router.put("/update-owner", (req, res) => {
   // รอให้การอัพเดตเสร็จสิ้น
   Promise.all(updatePromises)
     .then(() => {
-      res.json({ success: true, message: "อัพเดตเจ้าของเลขล็อตโต้และสถานะเรียบร้อย" });
+      res.json({
+        success: true,
+        message: "อัพเดตเจ้าของเลขล็อตโต้และสถานะเรียบร้อย",
+      });
     })
     .catch((err) => {
       console.error("Error updating owner and status:", err);
-      res.status(500).json({ success: false, message: "ไม่สามารถอัพเดตเจ้าของเลขล็อตโต้และสถานะได้" });
+      res.status(500).json({
+        success: false,
+        message: "ไม่สามารถอัพเดตเจ้าของเลขล็อตโต้และสถานะได้",
+      });
     });
 });
 
 router.get("/buy_al", (req, res) => {
   const userId = req.query.userId; // รับ userId จาก query parameter
-  const sql = "SELECT * FROM lotto_name WHERE owner = ?";  // กรองเฉพาะที่ owner ตรงกับ userId
-  
+  const sql = "SELECT * FROM lotto_name WHERE owner = ?"; // กรองเฉพาะที่ owner ตรงกับ userId
+
   conn.query(sql, [userId], (err, results) => {
     if (err) {
       console.error("DB ERROR:", err);
-      return res.status(500).json({ success: false, message: "เกิดข้อผิดพลาดในระบบ" });
+      return res
+        .status(500)
+        .json({ success: false, message: "เกิดข้อผิดพลาดในระบบ" });
     }
-    
+
     // ส่งข้อมูลที่กรองมาแล้วกลับไป
     res.json({
       success: true,
@@ -178,40 +211,167 @@ router.get("/buy_al", (req, res) => {
   });
 });
 
+// Route สำหรับสุ่มรางวัล + บันทึกผล
 router.post("/draw", (req, res) => {
-  // ลบข้อมูลรางวัลเดิมก่อน
   const deleteSql = "DELETE FROM lotto_winner";
   conn.query(deleteSql, (delErr) => {
     if (delErr) {
       console.error("Delete error:", delErr);
-      return res.status(500).json({ success: false, message: "ลบข้อมูลเดิมไม่สำเร็จ" });
+      return res
+        .status(500)
+        .json({ success: false, message: "ลบข้อมูลเดิมไม่สำเร็จ" });
     }
 
-    // สุ่ม 5 หมายเลขจาก lotto_name
-    const randomSql = "SELECT number FROM lotto_name ORDER BY RAND() LIMIT 5";
-    conn.query(randomSql, (randErr, results: any) => {
-      if (randErr) {
-        console.error("Random error:", randErr);
-        return res.status(500).json({ success: false, message: "สุ่มหมายเลขไม่สำเร็จ" });
+    const getAllSql = "SELECT number FROM lotto_name";
+    conn.query(getAllSql, (getErr, allResults: any[]) => {
+      if (getErr) {
+        console.error("Fetch error:", getErr);
+        return res
+          .status(500)
+          .json({ success: false, message: "ดึงข้อมูลทั้งหมดไม่สำเร็จ" });
       }
 
-      const numbers = results.map((r: any) => [r.number]);
+      if (allResults.length === 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "ไม่มีเลขล็อตโต้ให้สุ่ม" });
+      }
 
-      // บันทึกลงตาราง lotto_winner
-      const insertSql = "INSERT INTO lotto_winner (number) VALUES ?";
-      conn.query(insertSql, [numbers], (insErr, insertRes: any) => {
-        if (insErr) {
-          console.error("Insert error:", insErr);
-          return res.status(500).json({ success: false, message: "บันทึกผลไม่สำเร็จ" });
-        }
+      function pickRandom(arr: any[], n: number): any[] {
+        const shuffled = [...arr].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, n);
+      }
 
-        res.json({
-          success: true,
-          winners: results.map((r: any) => r.number), // ส่งเลขกลับไปให้ client
-          count: insertRes.affectedRows
+      function toSixDigit(num: string | number): string {
+        return String(num).padStart(6, "0");
+      }
+
+      const sixDigitNumbers = allResults.filter(
+        (r) => String(r.number).length === 6
+      );
+
+      if (sixDigitNumbers.length < 3) {
+        return res.status(400).json({
+          success: false,
+          message: "เลข 6 หลักไม่พอสำหรับสุ่ม 3 รางวัล",
         });
-      });
+      }
+
+      // สุ่ม 3 รางวัลที่ 1–3 จากเลข 6 หลัก
+      const threeSix = pickRandom(sixDigitNumbers, 3);
+      const set1 = [toSixDigit(threeSix[0].number)];
+      const set2 = [toSixDigit(threeSix[1].number)];
+      const set3 = [toSixDigit(threeSix[2].number)];
+
+      // Fix รางวัลเลขท้าย 3 ตัว และ 2 ตัว
+      // const fixedLast3 = "123";
+      // const fixedLast2 = "45";
+
+      // const set4 = [ toSixDigit(fixedLast3) ]; // เติมให้ครบ 6 หลัก เช่น 000123
+      // const set5 = [ toSixDigit(fixedLast2) ]; // เติมให้ครบ 6 หลัก เช่น 000045
+      const last3 = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
+      const last2 = String(Math.floor(Math.random() * 100)).padStart(2, "0");
+
+      const set4 = [toSixDigit(last3)]; // เติมให้ครบ 6 หลัก เช่น 000123
+      const set5 = [toSixDigit(last2)]; // เติมให้ครบ 6 หลัก เช่น 000045
+
+      const numbersToInsert = [set1[0], set2[0], set3[0], set4[0], set5[0]].map(
+        (num) => [num]
+      );
+
+      const insertSql = "INSERT INTO lotto_winner (number) VALUES ?";
+      conn.query(
+        insertSql,
+        [numbersToInsert],
+        (insErr, insertRes: ResultSetHeader) => {
+          if (insErr) {
+            console.error("Insert error:", insErr);
+            return res
+              .status(500)
+              .json({ success: false, message: "บันทึกผลไม่สำเร็จ" });
+          }
+
+          res.json({
+            success: true,
+            winners: {
+              "1": set1,
+              "2": set2,
+              "3": set3,
+              last3: set4,
+              last2: set5,
+            },
+            count: insertRes.affectedRows,
+          });
+        }
+      );
     });
   });
 });
 
+router.get("/winner", (req, res) => {
+  const sql = "SELECT number FROM lotto_winner";
+  conn.query(sql, (err, results: any[]) => {
+    if (err) {
+      console.error("Error:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "ดึงข้อมูลไม่สำเร็จ" });
+    }
+
+    if (!results || results.length === 0) {
+      return res.json({ success: true, winners: {} });
+    }
+
+    // สมมุติว่า index 0-2 = รางวัลที่ 1-3, 3 = เลขท้าย 3 ตัว, 4 = เลขท้าย 2 ตัว
+    const winners = {
+      "1": [results[0]?.number ?? ""],
+      "2": [results[1]?.number ?? ""],
+      "3": [results[2]?.number ?? ""],
+      last3: [results[3]?.number ?? ""],
+      last2: [results[4]?.number ?? ""],
+    };
+
+    res.json({ success: true, winners });
+  });
+});
+
+// lotto.ts หรือ balance.ts ก็ได้
+router.post("/redeem", (req, res) => {
+  const { userId, lottoId, prizeAmount } = req.body;
+
+  if (!userId || !lottoId || !prizeAmount) {
+    return res.status(400).json({ success: false, message: "ข้อมูลไม่ครบ" });
+  }
+
+  // 1) อัพเดต balance + เพิ่มเงินรางวัล
+  const sql1 = "UPDATE customer SET balance = balance + ? WHERE idx = ?";
+  conn.query(sql1, [prizeAmount, userId], (err, result: ResultSetHeader) => {
+    if (err) {
+      console.error("DB ERROR:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "เกิดข้อผิดพลาดในระบบ" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "ไม่พบผู้ใช้" });
+    }
+
+    // 2) อัพเดตสถานะตั๋วว่า redeemed = true กันซ้ำ
+    const sql2 = "UPDATE lotto_name SET redeemed = 1 WHERE id = ?";
+    conn.query(sql2, [lottoId], (err2) => {
+      if (err2) {
+        console.error("DB ERROR:", err2);
+        return res
+          .status(500)
+          .json({ success: false, message: "อัพเดตสถานะตั๋วไม่สำเร็จ" });
+      }
+
+      res.json({
+        success: true,
+        message: "ขึ้นเงินสำเร็จ",
+        prize: prizeAmount,
+      });
+    });
+  });
+});
